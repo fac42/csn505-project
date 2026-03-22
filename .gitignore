@@ -1,6 +1,6 @@
 # --- PRIVATE CREDENTIALS ---
-# This is the most important line for your security
 secrets.h
+!secrets.template.h
 
 # --- ARDUINO/IDE FILES ---
 # Ignore compiled binaries and temporary build files
@@ -15,7 +15,6 @@ out/
 Thumbs.db
 
 # --- LIBRARIES & LOCAL CONFIG ---
-# If you use libraries locally, ignore them to keep the repo clean
 libraries/
 .vscode/
 .pio/

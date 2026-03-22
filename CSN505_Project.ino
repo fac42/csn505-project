@@ -74,7 +74,7 @@ void IRAM_ATTR countPulse() {
   pulseCount++;
 }
 
-// This runs whenever you flip the switch on the Blynk Mobile App
+// This runs whenever you flip the switch on either the Blynk web or mobile interfaces
 BLYNK_WRITE(V10) {
   manualOverride = param.asInt(); // Sets to 1 (True) or 0 (False)
   Serial.print("Manual Switch flipped: ");

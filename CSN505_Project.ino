@@ -113,7 +113,7 @@ void updateSystem() {
     
     // 6. NOTIFICATION: Alert the user if the fan just started
     if (!fanActive && !notificationSent) {
-      String source = manualOverride ? "Manual App Switch" : "Auto-Sensors";
+      String source = manualOverride ? "Manual Activation" : "Sensor";
       String message = "Fan Active via " + source + "! T:" + String(t,1) + "C, H:" + String(h,0) + "%";
       
       Blynk.logEvent("fan_on", message); // Sends Push/Email via Blynk Console

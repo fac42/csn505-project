@@ -20,11 +20,17 @@
     - Value Display widget attached to V7 (Fan RPM)
     - Switch widget attached to V10 (Manual Override)
  *************************************************************/
+ 
+#if __has_include("secrets.h")
+    #include "secrets.h"
+#else
+    #error "Missing secrets.h! Please make a copy of secrets.template.h, rename it to secrets.h and fill in the required information."
+#endif
 
-/* Fill-in information from Blynk Device Info here */
-#define BLYNK_TEMPLATE_ID    "TMPL2Ks9fSoNk"
-#define BLYNK_TEMPLATE_NAME  "CSN505 Project"
-#define BLYNK_AUTH_TOKEN     "CttN89n0XNXDxzPMlAjk07aKYMqJhGKI"
+/* Populates Blynk credentials using information set in secrets.h file */
+#define BLYNK_TEMPLATE_ID    SECRET_BLYNK_TEMPLATE_ID
+#define BLYNK_TEMPLATE_NAME  SECRET_BLYNK_TEMPLATE_NAME
+#define BLYNK_AUTH_TOKEN     SECRET_BLYNK_AUTH_TOKEN
 
 /* Comment this out to disable prints and save space */
 #define BLYNK_PRINT Serial
@@ -37,8 +43,8 @@
 #include <LiquidCrystal_I2C.h>
 
 // --- NETWORK SETTINGS ---
-char ssid[] = "megaPhone";      // Your WiFi Name
-char pass[] = "csn505projects"; // Your WiFi Password
+char ssid[] = SECRET_SSID; 
+char pass[] = SECRET_PASS;
 
 // --- PIN ASSIGNMENTS (Where wires connect to the ESP32) ---
 #define DHTPIN 4          // DHT11 Sensor Pin

@@ -82,8 +82,8 @@ void updateSystem() {
   float t = dht.readTemperature(); 
 
   // 2. Calculate Fan Speed (RPM)
-  rpm = (pulseCount * 30); 
-  pulseCount = 0; // Reset counter for the next 2 seconds
+  rpm = (pulseCount * 12); 
+  pulseCount = 0;
 
   // 3. Error Check: Stop if the sensor is unplugged
   if (isnan(h) || isnan(t)) {
@@ -166,12 +166,12 @@ void setup() {
   // Connect to Blynk Cloud
   Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
 
-  // Create a timer to repeat the "updateSystem" logic every 2 seconds
-  timer.setInterval(2000L, updateSystem);
+  // Create a timer to repeat the "updateSystem" logic every 5 seconds
+  timer.setInterval(5000L, updateSystem);
 }
 
 // THIS RUNS REPETITIVELY as fast as possible
 void loop() {
   Blynk.run(); // Keeps the connection to your phone alive
-  timer.run(); // Checks if 2 seconds have passed to run the fan logic
+  timer.run(); // Runs the fan logic based on timer interval
 }

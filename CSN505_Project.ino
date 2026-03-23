@@ -42,7 +42,7 @@ char pass[] = SECRET_PASS;
 
 // --- SYSTEM SETTINGS (The "Brain" Rules) ---
 float tempThreshold = 30.0; // Start fan if the detected temperature goes ABOVE this (Adjustable via V11)
-float humThreshold = 70.0;  // Start fan if the detected humidity goes ABOVE this (Adjustable via V12)
+float humThreshold = 50.0;  // Start fan if the detected humidity goes ABOVE this (Adjustable via V12)
 int errorCount = 0;         // Tracks how many times the sensor failed to read
 
 // --- SYSTEM MEMORY (Variables the computer tracks) ---

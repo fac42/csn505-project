@@ -48,7 +48,7 @@ int errorCount = 0;         // Tracks how many times the sensor failed to read
 // --- SYSTEM MEMORY (Variables the computer tracks) ---
 volatile int pulseCount = 0;   // Counts raw fan rotations
 bool fanActive = false;        // Is the fan currently spinning?
-bool manualOverride = false;   // Did the user press the "Force ON" button?
+bool manualOverride = false;   // Did the user press the "ON" button?
 bool notificationSent = false; // Ensures we only send ONE alert per start
 
 // --- DATA SMOOTHING (Prevents the RPM display from being "jumpy") ---

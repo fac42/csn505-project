@@ -114,7 +114,7 @@ void updateSystem() {
   }
 
   // 4. DECISION LOGIC: Should the fan be on?
-  // We stay ON if: Manual is ON -OR- (Sensor is OK AND Temp/Hum is high)
+  // Fan stays ON if: Manual is ON -OR- (Sensor is OK AND Temp/Hum is high)
   bool shouldBeOn = (manualOverride || (!sensorError && (t >= tempThreshold || h >= humThreshold)));
 
   // 5. ACTION: Turn fan hardware ON or OFF

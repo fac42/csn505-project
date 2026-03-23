@@ -4,9 +4,9 @@
   WHAT THIS DOES:
   - Measures Temperature and Humidity using a DHT11 sensor.
   - Automatically turns a fan ON if it gets too hot or humid.
-  - Automatically turns the fan OFF once it cools down (Hysteresis).
-  - Allows a user to "Force" the fan ON via a phone app button.
-  - Sends a phone notification/email when the fan starts.
+  - Automatically turns the fan OFF once it cools down.
+  - Allows a user to "Force" the fan ON via a button on the web or mobile dashboard UI.
+  - Sends a phone notification/email when the fan has started.
   - Displays all data on a physical 16x2 LCD screen.
 
   WARNING:

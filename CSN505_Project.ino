@@ -105,7 +105,7 @@ void updateSystem() {
   bool sensorError = isnan(h) || isnan(t);
   if (sensorError) {
     errorCount++;
-    if (errorCount >= 3) {
+    if (errorCount >= 5) {
       analogWrite(FAN_PWM_PIN, 255); // Force Fan to 100% for safety!
       if (Blynk.connected()) Blynk.logEvent("error", "Sensor Failure! Fan forced to MAX.");
     }

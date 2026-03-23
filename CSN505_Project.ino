@@ -31,8 +31,8 @@
 #include <LiquidCrystal_I2C.h>
 
 // --- NETWORK SETTINGS ---
-char ssid[] = "megaPhone";      // Your WiFi Name
-char pass[] = "csn505projects"; // Your WiFi Password
+char ssid[] = SECRET_SSID; 
+char pass[] = SECRET_PASS;
 
 // --- PIN ASSIGNMENTS (Where wires connect to the ESP32) ---
 #define DHTPIN 4          // DHT11 Sensor Pin

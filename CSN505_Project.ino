@@ -123,8 +123,11 @@ void updateSystem() {
     
     // Send a notification if the fan just started
     if (!fanActive && !notificationSent && Blynk.connected()) {
-      Blynk.logEvent("fan_on", "Fan Started! Temp: " + String(t,1) + "C");
-      notificationSent = true;
+      String source = manualOverride ? "Manual Activation" : "Sensor";
+      String message = "Fan Active via " + source + "! T:" + String(t,1) + "C, H:" + String(h,0) + "%";
+      
+	  Blynk.logEvent("fan_on", message); // Sends Push/Email via Blynk Consol
+	  notificationSent = true;
     }
     fanActive = true;
   } else {

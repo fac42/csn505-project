@@ -41,8 +41,8 @@ char pass[] = SECRET_PASS;
 #define FAN_TACH_PIN 5    // Fan Speed Sensor (RPM) Pin
 
 // --- SYSTEM SETTINGS (The "Brain" Rules) ---
-float tempThreshold = 30.0; // Start fan if Temp goes ABOVE this (Adjustable via V11)
-float humThreshold = 70.0;  // Start fan if Humidity goes ABOVE this (Adjustable via V12)
+float tempThreshold = 30.0; // Start fan if the detected temperature goes ABOVE this (Adjustable via V11)
+float humThreshold = 70.0;  // Start fan if the detected humidity goes ABOVE this (Adjustable via V12)
 int errorCount = 0;         // Tracks how many times the sensor failed to read
 
 // --- SYSTEM MEMORY (Variables the computer tracks) ---

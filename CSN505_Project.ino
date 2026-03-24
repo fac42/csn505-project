@@ -29,7 +29,7 @@
 #include <LiquidCrystal_I2C.h>
 
 // --- NETWORK SETTINGS ---
-char ssid[] = SECRET_SSID; 
+char ssid[] = SECRET_SSID;
 char pass[] = SECRET_PASS;
 
 // --- PIN ASSIGNMENTS (Where wires connect to the ESP32) ---
@@ -90,7 +90,7 @@ void updateSystem() {
 
   // 2. Calculate Fan Speed (RPM) with Smoothing
   // We check every 5 seconds, so we multiply by 12 to get "Pulses per Minute"
-  int currentRpm = (pulseCount * 12); 
+  int currentRpm = (pulseCount * 12);
   pulseCount = 0; // Reset counter for the next 5 seconds
   
   total = total - readings[readIndex];    // Remove the oldest reading
@@ -122,7 +122,7 @@ void updateSystem() {
     // Send a notification if the fan just started
     if (!fanActive && !notificationSent && Blynk.connected()) {
       String source = manualOverride ? "Manual Activation" : "Sensor";
-      String message = "Fan Active via " + source + "! T:" + String(t,1) + "C, H:" + String(h,0) + "%";
+      String message = "Fan Active via " + source + "! T:" + String(t, 1) + "C, H:" + String(h, 0) + "%";
       
 	  Blynk.logEvent("fan_on", message); // Sends Push/Email via Blynk Consol
 	  notificationSent = true;
@@ -175,7 +175,7 @@ void setup() {
   pinMode(FAN_TACH_PIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(FAN_TACH_PIN), countPulse, FALLING);
   pinMode(FAN_PWM_PIN, OUTPUT);
-  
+
   // Set the "Smoothing" memory to zero
   for (int i = 0; i < numReadings; i++) readings[i] = 0;
 
@@ -183,7 +183,7 @@ void setup() {
   // This allows the fan logic to keep running even if WiFi drops!
   Blynk.config(BLYNK_AUTH_TOKEN);
   Blynk.connectWiFi(ssid, pass);
-  
+
   // Run the fan logic every 5 seconds (5000L)
   timer.setInterval(5000L, updateSystem);
 }
@@ -191,7 +191,7 @@ void setup() {
 // THIS RUNS REPETITIVELY as fast as possible
 void loop() {
   // Process Blynk's internal connection logic and app updates
-  Blynk.run(); 
+  Blynk.run();
 
   // Process your 5-second sensor and fan logic timer
   timer.run(); 

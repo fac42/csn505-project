@@ -12,17 +12,15 @@
   - LCD Display: Shows Temp, Humidity, Mode (Auto/Manual), and RPM.
  
  *************************************************************/
-
-#if __has_include("secrets.h")
-    #include "secrets.h"
-#else
-    #error "Missing secrets.h! Please make a copy of secrets.template.h, rename it to secrets.h and fill in the required information."
-#endif
+#include "secrets.h"
 
 /* Populates Blynk credentials using information set in secrets.h file */
 #define BLYNK_TEMPLATE_ID    SECRET_BLYNK_TEMPLATE_ID
 #define BLYNK_TEMPLATE_NAME  SECRET_BLYNK_TEMPLATE_NAME
 #define BLYNK_AUTH_TOKEN     SECRET_BLYNK_AUTH_TOKEN
+
+// Blynk debugging  (Shows connection status in Serial Monitor)
+#define BLYNK_PRINT Serial
 
 #include <WiFi.h>
 #include <BlynkSimpleEsp32.h>
@@ -157,9 +155,9 @@ void updateSystem() {
   lcd.setCursor(0, 1);
   // Bottom Row: MODE:XXX R:XXXX
   lcd.print("MODE:");
-  lcd.print(manualOverride ? "MAN" : "AUT");
+  lcd.print(manualOverride ? "MAN" : "AUTO");
   
-  lcd.setCursor(9, 1); 
+  lcd.setCursor(10, 1); 
   lcd.print("R:"); lcd.print(averageRpm);
 }
 
@@ -192,8 +190,9 @@ void setup() {
 
 // THIS RUNS REPETITIVELY as fast as possible
 void loop() {
-  if (Blynk.connected()) {
-    Blynk.run(); // Keep phone connection alive
-  }
-  timer.run(); // Check if it's time to run "updateSystem"
+  // Process Blynk's internal connection logic and app updates
+  Blynk.run(); 
+
+  // Process your 5-second sensor and fan logic timer
+  timer.run(); 
 }

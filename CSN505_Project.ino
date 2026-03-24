@@ -2,7 +2,7 @@
 /*************************************************************
   Blynk Automated Fan System: CSN505 Project
   
-  WHAT THIS DOES:
+  Overview:
   - Measures Temperature and Humidity using a DHT11 sensor and automatically controls a fan.
   - Has a "Fail-Safe" feature that turns fan to max if the sensor breaks/unplugs.
   - Has a "RPM Smoothing" feature that prevents the RPM display from jumping around.
@@ -99,42 +99,44 @@ void updateSystem() {
   readIndex = (readIndex + 1) % numReadings;
   averageRpm = total / numReadings;       // The "Smooth" number we show on the LCD
 
-  // 3. FAIL-SAFE: Check if the sensor is broken or unplugged
+// 3. FAIL-SAFE: Check if the sensor is broken or unplugged
   bool sensorError = isnan(h) || isnan(t);
+  bool hardFail = false; // New temporary variable to track persistent errors
+
   if (sensorError) {
     errorCount++;
     if (errorCount >= 5) {
-      analogWrite(FAN_PWM_PIN, 255); // Force Fan to 100% for safety!
-      if (Blynk.connected()) Blynk.logEvent("error", "Sensor Failure! Turning on fan as a fail-safe!.");
+      hardFail = true; // We have reached the error threshold
+      if (Blynk.connected() && !notificationSent) {
+        Blynk.logEvent("error", "Sensor Failure! Fan forced to MAX.");
+      }
     }
   } else {
     errorCount = 0; // Reset error count if sensor starts working again
   }
 
   // 4. DECISION LOGIC: Should the fan be on?
-  // Fan stays ON if: Manual is ON -OR- (Sensor is OK AND Temp/Hum is high)
-  bool shouldBeOn = (manualOverride || (!sensorError && (t >= tempThreshold || h >= humThreshold)));
+  // Logic: Manual is ON -OR- Fail-safe is active -OR- (Sensor is OK AND Temp/Hum is high)
+  bool shouldBeOn = (manualOverride || hardFail || (!sensorError && (t >= tempThreshold || h >= humThreshold)));
 
   // 5. ACTION: Turn fan hardware ON or OFF
   if (shouldBeOn) {
-    analogWrite(FAN_PWM_PIN, 255); // Give the fan full power
+    analogWrite(FAN_PWM_PIN, 255); // Full power
     
-    // Send a notification if the fan just started
     if (!fanActive && !notificationSent && Blynk.connected()) {
-      String source = manualOverride ? "Manual Activation" : "Sensor";
-      String message = "Fan Active via " + source + "! T:" + String(t, 1) + "C, H:" + String(h, 0) + "%";
-      
-	  Blynk.logEvent("fan_on", message); // Sends Push/Email via Blynk Consol
-	  notificationSent = true;
+      // Set the message based on why the fan started
+      String reason = hardFail ? "Sensor Failure" : (manualOverride ? "Manual" : "Sensor");
+      Blynk.logEvent("fan_on", "Fan Active via " + reason);
+      notificationSent = true;
     }
     fanActive = true;
   } else {
-    analogWrite(FAN_PWM_PIN, 0); // Turn the fan off
+    analogWrite(FAN_PWM_PIN, 0); 
     fanActive = false;
     notificationSent = false;
   }
 
-  // 6. SYNC: Send the data to your phone (Only if the internet is working)
+  // 6. SYNC: Send the data to Blynk (only if the Internet is working)
   if (Blynk.connected()) {
     Blynk.virtualWrite(V5, t);
     Blynk.virtualWrite(V6, h);

@@ -105,7 +105,7 @@ void updateSystem() {
     errorCount++;
     if (errorCount >= 5) {
       analogWrite(FAN_PWM_PIN, 255); // Force Fan to 100% for safety!
-      if (Blynk.connected()) Blynk.logEvent("error", "Sensor Failure! Fan forced to MAX.");
+      if (Blynk.connected()) Blynk.logEvent("error", "Sensor Failure! Turning on fan as a fail-safe!.");
     }
   } else {
     errorCount = 0; // Reset error count if sensor starts working again

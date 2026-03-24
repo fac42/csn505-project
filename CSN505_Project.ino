@@ -126,7 +126,7 @@ void updateSystem() {
     if (!fanActive && !notificationSent && Blynk.connected()) {
       // Set the message based on why the fan started
       String reason = hardFail ? "Sensor Failure" : (manualOverride ? "Manual" : "Sensor");
-      Blynk.logEvent("fan_on", "Fan Active via " + reason);
+      Blynk.logEvent("fan_on", "Fan Active via " + reason + "! T:" + String(t, 1) + "C, H:" + String(h, 0) + "%");
       notificationSent = true;
     }
     fanActive = true;
@@ -136,7 +136,7 @@ void updateSystem() {
     notificationSent = false;
   }
 
-  // 6. SYNC: Send the data to Blynk (only if the Internet is working)
+  // 6. SYNC: Send the data to Blynk.Console (only if the Internet is working)
   if (Blynk.connected()) {
     Blynk.virtualWrite(V5, t);
     Blynk.virtualWrite(V6, h);

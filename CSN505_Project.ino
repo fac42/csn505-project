@@ -72,12 +72,12 @@ BLYNK_WRITE(V10) {
   manualOverride = param.asInt();
 }
 
-// This runs when you slide the "Temperature Target" slider (V11)
+// This runs when you slide the "Temperature Theshold" slider (V11)
 BLYNK_WRITE(V11) {
   tempThreshold = param.asFloat();
 }
 
-// This runs when you slide the "Humidity Target" slider (V12)
+// This runs when you slide the "Humidity Threshold" slider (V12)
 BLYNK_WRITE(V12) {
   humThreshold = param.asFloat();
 }

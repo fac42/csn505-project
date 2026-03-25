@@ -1,6 +1,6 @@
 
 /*************************************************************
-  Blynk Automated Fan System: CSN505 Project
+  Automated Temperature/Humidity Fan System: CSN505 Project
   
   WHAT THIS DOES:
   - Measures Temperature and Humidity using a DHT11 sensor and automatically controls a fan.

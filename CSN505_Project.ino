@@ -2,7 +2,7 @@
 /*************************************************************
   Automated Temperature/Humidity Fan System: CSN505 Project
   
-  WHAT THIS DOES:
+  Overview:
   - Measures Temperature and Humidity using a DHT11 sensor and automatically controls a fan.
   - Has a "Fail-Safe" feature that turns fan to max if the sensor breaks/unplugs.
   - Has a "RPM Smoothing" feature that prevents the RPM display from jumping around.
@@ -12,17 +12,15 @@
   - LCD Display: Shows Temp, Humidity, Mode (Auto/Manual), and RPM.
  
  *************************************************************/
-
-#if __has_include("secrets.h")
-    #include "secrets.h"
-#else
-    #error "Missing secrets.h! Please make a copy of secrets.template.h, rename it to secrets.h and fill in the required information."
-#endif
+#include "secrets.h"
 
 /* Populates Blynk credentials using information set in secrets.h file */
 #define BLYNK_TEMPLATE_ID    SECRET_BLYNK_TEMPLATE_ID
 #define BLYNK_TEMPLATE_NAME  SECRET_BLYNK_TEMPLATE_NAME
 #define BLYNK_AUTH_TOKEN     SECRET_BLYNK_AUTH_TOKEN
+
+// Blynk debugging  (Shows connection status in Serial Monitor)
+#define BLYNK_PRINT Serial
 
 #include <WiFi.h>
 #include <BlynkSimpleEsp32.h>
@@ -31,7 +29,7 @@
 #include <LiquidCrystal_I2C.h>
 
 // --- NETWORK SETTINGS ---
-char ssid[] = SECRET_SSID; 
+char ssid[] = SECRET_SSID;
 char pass[] = SECRET_PASS;
 
 // --- PIN ASSIGNMENTS (Where wires connect to the ESP32) ---
@@ -74,12 +72,12 @@ BLYNK_WRITE(V10) {
   manualOverride = param.asInt();
 }
 
-// This runs when you slide the "Temperature Target" slider (V11)
+// This runs when you slide the "Temperature Theshold" slider (V11)
 BLYNK_WRITE(V11) {
   tempThreshold = param.asFloat();
 }
 
-// This runs when you slide the "Humidity Target" slider (V12)
+// This runs when you slide the "Humidity Threshold" slider (V12)
 BLYNK_WRITE(V12) {
   humThreshold = param.asFloat();
 }
@@ -92,7 +90,7 @@ void updateSystem() {
 
   // 2. Calculate Fan Speed (RPM) with Smoothing
   // We check every 5 seconds, so we multiply by 12 to get "Pulses per Minute"
-  int currentRpm = (pulseCount * 12); 
+  int currentRpm = (pulseCount * 12);
   pulseCount = 0; // Reset counter for the next 5 seconds
   
   total = total - readings[readIndex];    // Remove the oldest reading
@@ -101,42 +99,44 @@ void updateSystem() {
   readIndex = (readIndex + 1) % numReadings;
   averageRpm = total / numReadings;       // The "Smooth" number we show on the LCD
 
-  // 3. FAIL-SAFE: Check if the sensor is broken or unplugged
+// 3. FAIL-SAFE: Check if the sensor is broken or unplugged
   bool sensorError = isnan(h) || isnan(t);
+  bool hardFail = false; // New temporary variable to track persistent errors
+
   if (sensorError) {
     errorCount++;
     if (errorCount >= 5) {
-      analogWrite(FAN_PWM_PIN, 255); // Force Fan to 100% for safety!
-      if (Blynk.connected()) Blynk.logEvent("error", "Sensor Failure! Fan forced to MAX.");
+      hardFail = true; // We have reached the error threshold
+      if (Blynk.connected() && !notificationSent) {
+        Blynk.logEvent("error", "Sensor Failure! Fan forced to MAX.");
+      }
     }
   } else {
     errorCount = 0; // Reset error count if sensor starts working again
   }
 
   // 4. DECISION LOGIC: Should the fan be on?
-  // Fan stays ON if: Manual is ON -OR- (Sensor is OK AND Temp/Hum is high)
-  bool shouldBeOn = (manualOverride || (!sensorError && (t >= tempThreshold || h >= humThreshold)));
+  // Logic: Manual is ON -OR- Fail-safe is active -OR- (Sensor is OK AND Temp/Hum is high)
+  bool shouldBeOn = (manualOverride || hardFail || (!sensorError && (t >= tempThreshold || h >= humThreshold)));
 
   // 5. ACTION: Turn fan hardware ON or OFF
   if (shouldBeOn) {
-    analogWrite(FAN_PWM_PIN, 255); // Give the fan full power
+    analogWrite(FAN_PWM_PIN, 255); // Full power
     
-    // Send a notification if the fan just started
     if (!fanActive && !notificationSent && Blynk.connected()) {
-      String source = manualOverride ? "Manual Activation" : "Sensor";
-      String message = "Fan Active via " + source + "! T:" + String(t,1) + "C, H:" + String(h,0) + "%";
-      
-	  Blynk.logEvent("fan_on", message); // Sends Push/Email via Blynk Consol
-	  notificationSent = true;
+      // Set the message based on why the fan started
+      String reason = hardFail ? "Sensor Failure" : (manualOverride ? "Manual" : "Sensor");
+      Blynk.logEvent("fan_on", "Fan Active via " + reason + "! T:" + String(t, 1) + "C, H:" + String(h, 0) + "%");
+      notificationSent = true;
     }
     fanActive = true;
   } else {
-    analogWrite(FAN_PWM_PIN, 0); // Turn the fan off
+    analogWrite(FAN_PWM_PIN, 0); 
     fanActive = false;
     notificationSent = false;
   }
 
-  // 6. SYNC: Send the data to your phone (Only if the internet is working)
+  // 6. SYNC: Send the data to Blynk.Console (only if the Internet is working)
   if (Blynk.connected()) {
     Blynk.virtualWrite(V5, t);
     Blynk.virtualWrite(V6, h);
@@ -157,9 +157,9 @@ void updateSystem() {
   lcd.setCursor(0, 1);
   // Bottom Row: MODE:XXX R:XXXX
   lcd.print("MODE:");
-  lcd.print(manualOverride ? "MAN" : "AUT");
+  lcd.print(manualOverride ? "MAN" : "AUTO");
   
-  lcd.setCursor(9, 1); 
+  lcd.setCursor(10, 1); 
   lcd.print("R:"); lcd.print(averageRpm);
 }
 
@@ -177,7 +177,7 @@ void setup() {
   pinMode(FAN_TACH_PIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(FAN_TACH_PIN), countPulse, FALLING);
   pinMode(FAN_PWM_PIN, OUTPUT);
-  
+
   // Set the "Smoothing" memory to zero
   for (int i = 0; i < numReadings; i++) readings[i] = 0;
 
@@ -185,15 +185,16 @@ void setup() {
   // This allows the fan logic to keep running even if WiFi drops!
   Blynk.config(BLYNK_AUTH_TOKEN);
   Blynk.connectWiFi(ssid, pass);
-  
+
   // Run the fan logic every 5 seconds (5000L)
   timer.setInterval(5000L, updateSystem);
 }
 
 // THIS RUNS REPETITIVELY as fast as possible
 void loop() {
-  if (Blynk.connected()) {
-    Blynk.run(); // Keep phone connection alive
-  }
-  timer.run(); // Check if it's time to run "updateSystem"
+  // Process Blynk's internal connection logic and app updates
+  Blynk.run();
+
+  // Process your 5-second sensor and fan logic timer
+  timer.run(); 
 }
